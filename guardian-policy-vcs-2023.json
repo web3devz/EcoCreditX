@@ -1,0 +1,516 @@
+{
+  "policyId": "verra_vcs_2023",
+  "name": "Verra Verified Carbon Standard 2023",
+  "version": "2023.1.0",
+  "description": "Complete Guardian policy implementation for Verra VCS 2023 standard with dMRV integration",
+  "policyTag": "VCS_2023_Policy",
+  "status": "PUBLISHED",
+  "creator": "Guardian Team",
+  "createdAt": "2024-01-01T00:00:00.000Z",
+  "updatedAt": "2024-12-01T00:00:00.000Z",
+  "config": {
+    "blockType": "interfaceContainerBlock",
+    "permissions": [
+      "PROJECT_DEVELOPER",
+      "VALIDATION_VERIFICATION_BODY", 
+      "REGISTRY_OPERATOR"
+    ]
+  },
+  "policyRoles": [
+    {
+      "name": "PROJECT_DEVELOPER",
+      "description": "Entity developing carbon reduction/removal projects",
+      "permissions": [
+        "SUBMIT_PROJECT_DESIGN",
+        "UPLOAD_MONITORING_REPORT",
+        "REQUEST_VERIFICATION",
+        "MANAGE_PROJECT_DOCUMENTS"
+      ]
+    },
+    {
+      "name": "VALIDATION_VERIFICATION_BODY",
+      "description": "Accredited third-party validator/verifier (VVB)",
+      "permissions": [
+        "VALIDATE_PROJECT_DESIGN",
+        "VERIFY_MONITORING_REPORTS",
+        "ISSUE_VALIDATION_REPORT",
+        "ISSUE_VERIFICATION_REPORT"
+      ]
+    },
+    {
+      "name": "REGISTRY_OPERATOR", 
+      "description": "Verra registry operator managing VCU issuance",
+      "permissions": [
+        "REGISTER_PROJECT",
+        "ISSUE_VCUs",
+        "MANAGE_REGISTRY",
+        "APPROVE_METHODOLOGY"
+      ]
+    }
+  ],
+  "projectCategories": [
+    {
+      "id": "AFOLU",
+      "name": "Agriculture, Forestry and Other Land Use",
+      "subcategories": [
+        "REDD+",
+        "Afforestation/Reforestation", 
+        "Improved Forest Management",
+        "Agricultural Land Management",
+        "Grassland Management",
+        "Wetlands Restoration"
+      ]
+    },
+    {
+      "id": "ENERGY",
+      "name": "Energy Industries",
+      "subcategories": [
+        "Solar Power",
+        "Wind Power", 
+        "Hydroelectric Power",
+        "Biomass Energy",
+        "Geothermal Energy",
+        "Energy Efficiency"
+      ]
+    },
+    {
+      "id": "TRANSPORT",
+      "name": "Transport",
+      "subcategories": [
+        "Modal Shift",
+        "Fuel Switch",
+        "Energy Efficiency in Transport"
+      ]
+    },
+    {
+      "id": "MANUFACTURING",
+      "name": "Manufacturing Industries",
+      "subcategories": [
+        "Process Improvements",
+        "Fuel Switch", 
+        "Energy Efficiency"
+      ]
+    },
+    {
+      "id": "WASTE",
+      "name": "Waste Handling and Disposal",
+      "subcategories": [
+        "Landfill Gas Management",
+        "Waste-to-Energy",
+        "Composting",
+        "Recycling"
+      ]
+    }
+  ],
+  "workflowStages": [
+    {
+      "id": "project_design",
+      "name": "Project Design & Validation",
+      "description": "Project development and third-party validation phase",
+      "requiredRoles": ["PROJECT_DEVELOPER", "VALIDATION_VERIFICATION_BODY"],
+      "documents": [
+        {
+          "type": "project_design_document",
+          "name": "Project Design Document (PDD)",
+          "required": true,
+          "template": "VCS_PDD_Template_v4.0",
+          "formats": ["pdf", "doc", "docx"]
+        },
+        {
+          "type": "validation_report",
+          "name": "Validation Report", 
+          "required": true,
+          "issuer": "VALIDATION_VERIFICATION_BODY",
+          "formats": ["pdf"]
+        }
+      ],
+      "validationCriteria": [
+        "Methodology compliance verification",
+        "Baseline and monitoring plan review",
+        "Additionality assessment",
+        "Environmental and social safeguards check",
+        "Stakeholder consultation verification"
+      ],
+      "automatedChecks": [
+        {
+          "type": "methodology_check",
+          "description": "Verify approved VCS methodology usage",
+          "implementation": "guardian.methodology.validate()"
+        },
+        {
+          "type": "baseline_validation", 
+          "description": "Validate baseline calculations and assumptions",
+          "implementation": "guardian.baseline.validate()"
+        },
+        {
+          "type": "safeguards_check",
+          "description": "Verify environmental and social safeguards implementation", 
+          "implementation": "guardian.safeguards.validate()"
+        }
+      ]
+    },
+    {
+      "id": "project_registration",
+      "name": "Project Registration",
+      "description": "Registry review and project registration",
+      "requiredRoles": ["REGISTRY_OPERATOR"],
+      "documents": [
+        {
+          "type": "registration_form",
+          "name": "Project Registration Form",
+          "required": true,
+          "formats": ["pdf", "xml"]
+        }
+      ],
+      "automatedChecks": [
+        {
+          "type": "completeness_check",
+          "description": "Verify all required documents are present and valid",
+          "implementation": "guardian.documents.validateCompleteness()"
+        },
+        {
+          "type": "duplicate_check",
+          "description": "Check for duplicate project registrations",
+          "implementation": "guardian.registry.checkDuplicates()"
+        }
+      ]
+    },
+    {
+      "id": "monitoring_reporting",
+      "name": "Monitoring & Reporting", 
+      "description": "Ongoing monitoring and periodic reporting",
+      "requiredRoles": ["PROJECT_DEVELOPER"],
+      "documents": [
+        {
+          "type": "monitoring_report",
+          "name": "Monitoring Report",
+          "required": true,
+          "frequency": "annual",
+          "template": "VCS_Monitoring_Report_Template_v4.0",
+          "formats": ["pdf", "doc", "docx"]
+        }
+      ],
+      "dMRVIntegration": {
+        "enabled": true,
+        "sensors": [
+          {
+            "type": "CO2_SENSOR",
+            "description": "Carbon dioxide concentration monitoring",
+            "frequency": "continuous",
+            "dataFormat": "json",
+            "validation": "guardian.dmrv.validateCO2Data()"
+          },
+          {
+            "type": "SATELLITE_IMAGERY", 
+            "description": "Satellite-based forest cover monitoring",
+            "frequency": "monthly",
+            "provider": ["Planet Labs", "Sentinel", "Landsat"],
+            "validation": "guardian.dmrv.validateSatelliteData()"
+          },
+          {
+            "type": "IOT_WEATHER",
+            "description": "Weather station data for agricultural projects",
+            "frequency": "hourly", 
+            "parameters": ["temperature", "humidity", "precipitation", "wind"],
+            "validation": "guardian.dmrv.validateWeatherData()"
+          }
+        ],
+        "dataAggregation": {
+          "method": "weighted_average",
+          "period": "monthly",
+          "qualityThreshold": 0.95,
+          "missingDataTolerance": 0.05
+        },
+        "blockchainLogging": {
+          "network": "Hedera",
+          "consensusService": true,
+          "tokenService": false,
+          "smartContract": true
+        }
+      },
+      "automatedChecks": [
+        {
+          "type": "data_quality_check",
+          "description": "Validate monitoring data quality and completeness",
+          "implementation": "guardian.monitoring.validateDataQuality()"
+        },
+        {
+          "type": "emission_calculation",
+          "description": "Automated emission reduction calculations",
+          "implementation": "guardian.emissions.calculateReductions()"
+        }
+      ]
+    },
+    {
+      "id": "verification",
+      "name": "Verification",
+      "description": "Third-party verification of monitoring reports",
+      "requiredRoles": ["VALIDATION_VERIFICATION_BODY"],
+      "documents": [
+        {
+          "type": "verification_report",
+          "name": "Verification Report",
+          "required": true,
+          "template": "VCS_Verification_Report_Template_v4.0",
+          "formats": ["pdf"]
+        },
+        {
+          "type": "verification_statement",
+          "name": "Verification Statement", 
+          "required": true,
+          "formats": ["pdf"]
+        }
+      ],
+      "verificationCriteria": [
+        "Monitoring plan implementation review",
+        "Data accuracy and precision verification", 
+        "Emission reduction calculation validation",
+        "Quality assurance/quality control review",
+        "Material discrepancy assessment"
+      ],
+      "automatedChecks": [
+        {
+          "type": "calculation_verification",
+          "description": "Independent recalculation of emission reductions",
+          "implementation": "guardian.verification.recalculateEmissions()"
+        },
+        {
+          "type": "uncertainty_analysis", 
+          "description": "Statistical analysis of monitoring data uncertainty",
+          "implementation": "guardian.verification.analyzeUncertainty()"
+        }
+      ]
+    },
+    {
+      "id": "vcu_issuance",
+      "name": "VCU Issuance",
+      "description": "Verified Carbon Unit issuance and tokenization",
+      "requiredRoles": ["REGISTRY_OPERATOR"],
+      "documents": [
+        {
+          "type": "issuance_request",
+          "name": "VCU Issuance Request",
+          "required": true,
+          "formats": ["pdf", "xml"]
+        }
+      ],
+      "tokenization": {
+        "network": "Hedera",
+        "tokenStandard": "HTS",
+        "tokenType": "FUNGIBLE",
+        "decimals": 2,
+        "metadata": {
+          "vintage": "required",
+          "methodology": "required", 
+          "projectId": "required",
+          "verifier": "required",
+          "issuanceDate": "required",
+          "serialNumber": "required"
+        }
+      },
+      "automatedChecks": [
+        {
+          "type": "verification_completeness",
+          "description": "Ensure all verification requirements are met",
+          "implementation": "guardian.issuance.validateVerification()"
+        },
+        {
+          "type": "double_issuance_prevention",
+          "description": "Prevent double counting and duplicate issuance",
+          "implementation": "guardian.issuance.preventDoubleIssuance()"
+        }
+      ]
+    }
+  ],
+  "eligibleMethodologies": [
+    {
+      "id": "VM0001",
+      "name": "REDD+ Methodology Framework (REDD+ MF)",
+      "version": "1.6",
+      "applicability": "REDD+ projects in tropical forests",
+      "carbonPools": ["above-ground biomass", "below-ground biomass", "dead wood", "litter", "soil organic carbon"]
+    },
+    {
+      "id": "VM0003", 
+      "name": "Methodology for Improved Forest Management through Extension of Rotation Age",
+      "version": "1.2",
+      "applicability": "Improved forest management projects",
+      "carbonPools": ["above-ground biomass", "below-ground biomass"]
+    },
+    {
+      "id": "VM0006",
+      "name": "Methodology for Carbon Credits from Improved Cook Stoves",
+      "version": "2.0", 
+      "applicability": "Household cookstove replacement projects",
+      "reductionType": "emission_reduction"
+    },
+    {
+      "id": "VM0007",
+      "name": "REDD+ Methodology Modules (REDD+ MM)", 
+      "version": "1.6",
+      "applicability": "Modular REDD+ methodology",
+      "carbonPools": ["above-ground biomass", "below-ground biomass", "dead wood", "litter", "soil organic carbon"]
+    },
+    {
+      "id": "ACM0001",
+      "name": "Flaring or use of landfill gas",
+      "version": "19.0",
+      "applicability": "Landfill gas capture and utilization",
+      "reductionType": "emission_reduction"
+    },
+    {
+      "id": "AMS-I.A",
+      "name": "Electricity generation by the user - Solar photovoltaic", 
+      "version": "17.0",
+      "applicability": "Small-scale solar PV projects (<15MW)",
+      "reductionType": "emission_reduction"
+    }
+  ],
+  "safeguardRequirements": [
+    {
+      "principle": "Environmental Integrity",
+      "requirements": [
+        "Environmental impact assessment conducted",
+        "Biodiversity conservation measures implemented",
+        "Water resource protection ensured",
+        "Soil conservation practices followed"
+      ]
+    },
+    {
+      "principle": "Social Safeguards",
+      "requirements": [
+        "Free, prior, and informed consent obtained",
+        "Indigenous peoples rights respected", 
+        "Local community benefits ensured",
+        "Gender equality promoted",
+        "Worker safety standards met"
+      ]
+    },
+    {
+      "principle": "Economic Sustainability",
+      "requirements": [
+        "Local economic development supported",
+        "Capacity building programs implemented", 
+        "Technology transfer facilitated",
+        "Long-term financial sustainability demonstrated"
+      ]
+    }
+  ],
+  "monitoringParameters": [
+    {
+      "parameter": "emission_reductions",
+      "description": "Annual greenhouse gas emission reductions",
+      "unit": "tCO2e/year",
+      "measurementMethod": "calculation",
+      "frequency": "annual",
+      "accuracy": "±5%"
+    },
+    {
+      "parameter": "project_activity",
+      "description": "Project activity implementation status",
+      "unit": "percentage",
+      "measurementMethod": "observation", 
+      "frequency": "quarterly",
+      "accuracy": "±2%"
+    },
+    {
+      "parameter": "baseline_emissions",
+      "description": "Baseline emissions without project",
+      "unit": "tCO2e/year",
+      "measurementMethod": "calculation",
+      "frequency": "annual", 
+      "accuracy": "±10%"
+    },
+    {
+      "parameter": "leakage",
+      "description": "Emission increases outside project boundary",
+      "unit": "tCO2e/year", 
+      "measurementMethod": "calculation",
+      "frequency": "annual",
+      "accuracy": "±15%"
+    }
+  ],
+  "integrations": {
+    "hedera": {
+      "network": "testnet",
+      "consensusService": {
+        "topicId": "0.0.123456",
+        "purpose": "Project milestone logging"
+      },
+      "tokenService": {
+        "enabled": true,
+        "tokenType": "FUNGIBLE",
+        "decimals": 2,
+        "name": "Verified Carbon Units",
+        "symbol": "VCU"
+      },
+      "smartContracts": {
+        "registry": "0.0.789012",
+        "issuance": "0.0.345678"
+      }
+    },
+    "externalAPIs": [
+      {
+        "name": "Verra Registry",
+        "endpoint": "https://registry.verra.org/api/v1",
+        "purpose": "Project registration and VCU issuance",
+        "authentication": "api_key"
+      },
+      {
+        "name": "Satellite Data Provider",
+        "endpoint": "https://api.planet.com/data/v1",
+        "purpose": "Forest monitoring via satellite imagery", 
+        "authentication": "oauth2"
+      },
+      {
+        "name": "IoT Data Platform",
+        "endpoint": "https://api.iot-platform.com/v2",
+        "purpose": "Sensor data collection and validation",
+        "authentication": "bearer_token"
+      }
+    ]
+  },
+  "reportingSchedule": {
+    "monitoring_reports": {
+      "frequency": "annual",
+      "deadline": "within 6 months of monitoring period end",
+      "template": "VCS_Monitoring_Report_Template_v4.0"
+    },
+    "verification": {
+      "frequency": "annual", 
+      "deadline": "within 12 months of monitoring period end",
+      "verifier_accreditation": "VCS_approved_VVB"
+    },
+    "registry_updates": {
+      "frequency": "upon_verification_completion",
+      "automated": true,
+      "blockchain_logging": true
+    }
+  },
+  "complianceChecks": [
+    {
+      "check": "methodology_compliance",
+      "automated": true,
+      "description": "Verify project follows approved VCS methodology",
+      "triggerEvents": ["project_submission", "monitoring_report_submission"]
+    },
+    {
+      "check": "additionality_maintenance",
+      "automated": false,
+      "description": "Ensure project additionality is maintained throughout crediting period",
+      "triggerEvents": ["annual_review", "methodology_update"]
+    },
+    {
+      "check": "safeguards_implementation", 
+      "automated": true,
+      "description": "Monitor implementation of environmental and social safeguards",
+      "triggerEvents": ["quarterly_review", "stakeholder_complaint"]
+    },
+    {
+      "check": "data_quality_assurance",
+      "automated": true,
+      "description": "Validate monitoring data quality and accuracy",
+      "triggerEvents": ["data_submission", "verification_initiation"]
+    }
+  ]
+}

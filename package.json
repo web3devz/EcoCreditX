@@ -1,0 +1,30 @@
+{
+  "name": "ecocreditx-marketplace",
+  "version": "1.0.0",
+  "description": "End-to-end Micro-Carbon Credit Marketplace on Hedera Hashgraph",
+  "main": "index.js",
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "deploy": "npx hardhat run scripts/deploy.js --network testnet",
+    "test": "npx hardhat test",
+    "frontend": "cd frontend && npm start"
+  },
+  "keywords": [
+    "hedera",
+    "carbon-credits",
+    "sustainability",
+    "blockchain",
+    "guardian"
+  ],
+  "author": "EcoCreditX Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "hardhat": "^2.26.2"
+  },
+  "dependencies": {
+    "@hashgraph/sdk": "^2.40.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^16.3.1"
+  }
+}
